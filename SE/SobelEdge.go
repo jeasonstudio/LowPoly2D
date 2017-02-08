@@ -1,4 +1,4 @@
-package main
+package mian
 
 import (
 	"fmt"
@@ -10,10 +10,10 @@ import (
 	"os"
 )
 
-func main() {
+func SE() {
 
-	// GaussianBlur.GaussianBlur("f.jpg", "zct.jpg", 5, 500)
-	SobelEdge("t.jpg", "tag.jpg", 65500)
+	// GaussianBlur.GaussianBlur("t.jpg", "zct.jpg", 5, 500)
+	SobelEdge("cat.jpg", "tag.jpg", 10)
 }
 
 // SobelEdge 索贝尔算子处理图片边缘
@@ -39,8 +39,8 @@ func SobelEdge(sourceImg, tagImg string, YUDATA uint16) {
 
 	jpg := image.NewGray16(img.Bounds())
 
-	for i := 0; i < xWidth; i++ {
-		for j := 0; j < yHeight; j++ {
+	for i := 1; i < xWidth-1; i++ {
+		for j := 1; j < yHeight-1; j++ {
 
 			// 四方向索贝尔算子
 			// GYX, GXY := SumGray(img, i, j)
@@ -51,15 +51,32 @@ func SobelEdge(sourceImg, tagImg string, YUDATA uint16) {
 			// G := SumFourGray(img, i, j)
 
 			// 四方向索贝尔算子
-			GX, GY := SumGrayNo(img, i, j)
+			// GX, GY := SumGrayNo(img, i, j)
 
 			// 八方向索贝尔算子
 			// G := SumEightGray(img, i, j)
-			fmt.Println(GX, GY)
-			if GX > YUDATA || GY > YUDATA {
+			// fmt.Println(GX + GY - RGBAToGray(img.At(i, j)))
+			// if (GX+GY)-RGBAToGray(img.At(i, j)) > YUDATA {
+			// 	// fmt.Println("(", i, ",", j, ")", G)
+			// 	var m color.Gray16
+			// 	m.Y = RGBAToGray(img.At(i, j))
+			// 	jpg.SetGray16(i, j, m)
+			// }
+
+			// 拉布拉斯算子
+			G := LaplaceGray(img, i, j)
+			// fmt.Println(G, YUDATA)
+			if G <= 1000 {
+				fmt.Println(G)
+			}
+
+			var m color.Gray16
+			if G > 60000 {
 				// fmt.Println("(", i, ",", j, ")", G)
-				var m color.Gray16
-				m.Y = GX + GY
+				m.Y = G
+				jpg.SetGray16(i, j, m)
+			} else {
+				m.Y = RGBAToGray(img.At(i, j))
 				jpg.SetGray16(i, j, m)
 			}
 			// fmt.Println(G)
@@ -141,6 +158,12 @@ func SumFourGray(img image.Image, i, j int) uint16 {
 	return GX + GY
 }
 
+// LaplaceGray 拉布拉斯算子
+func LaplaceGray(img image.Image, i, j int) uint16 {
+	return RGBAToGray(img.At(i-1, j-1)) + RGBAToGray(img.At(i-1, j)) + RGBAToGray(img.At(i-1, j+1)) + RGBAToGray(img.At(i, j-1)) + RGBAToGray(img.At(i, j+1)) + RGBAToGray(img.At(i+1, j-1)) + RGBAToGray(img.At(i+1, j+1)) - 8*RGBAToGray(img.At(i, j))
+}
+
 // Gx = [  f(x+1,y-1) + 2*f(x+1,y) + f(x+1,y+1)  ]  -  [  f(x-1,y-1) + 2*f(x-1,y) + f(x-1,y+1)  ]
 // Gy = [  f(x-1,y-1) + 2*f(x,y-1) + f(x+1,y-1)  ]  -  [  f(x-1,y+1) + 2*f(x,y+1) + f(x+1,y+1)  ]
+// laplace ={ f(x+1,y)+f(x-1,y)+2f(x,y) } +  { f(x,y-1) + f(x, y+1) - 2f(x, y)}= \\\\\f(x-1,y) + f(x+1,y) + f(x,y-1) + f(x, y+1) - 4f(x, y);
 // 224676
