@@ -8,14 +8,12 @@ import (
 	"image/jpeg"
 	"math"
 	"os"
-
-	"github.com/jeasonstudio/GaussianBlur"
 )
 
 func main() {
 
-	GaussianBlur.GaussianBlur("f.jpg", "zct.jpg", 5, 500)
-	SobelEdge("zct.jpg", "zct2.jpg", 60000)
+	// GaussianBlur.GaussianBlur("f.jpg", "zct.jpg", 5, 500)
+	SobelEdge("t.jpg", "tag.jpg", 65500)
 }
 
 // SobelEdge 索贝尔算子处理图片边缘
@@ -50,17 +48,18 @@ func SobelEdge(sourceImg, tagImg string, YUDATA uint16) {
 			// fmt.Println(G - RGBAToGray(img.At(i, j)))
 
 			// 四方向索贝尔算子
-			G := SumFourGray(img, i, j)
+			// G := SumFourGray(img, i, j)
 
 			// 四方向索贝尔算子
-			// G := SumGrayNo(img, i, j)
+			GX, GY := SumGrayNo(img, i, j)
 
 			// 八方向索贝尔算子
 			// G := SumEightGray(img, i, j)
-			if G > YUDATA {
+			fmt.Println(GX, GY)
+			if GX > YUDATA || GY > YUDATA {
 				// fmt.Println("(", i, ",", j, ")", G)
 				var m color.Gray16
-				m.Y = G
+				m.Y = GX + GY
 				jpg.SetGray16(i, j, m)
 			}
 			// fmt.Println(G)
@@ -102,16 +101,16 @@ func SumGray(img image.Image, i, j int) (float64, float64) {
 }
 
 // SumGrayNo sum tag Gx 四方向索贝尔算子
-func SumGrayNo(img image.Image, i, j int) uint16 {
+func SumGrayNo(img image.Image, i, j int) (uint16, uint16) {
 
 	GX := (RGBAToGray(img.At(i+1, j-1)) + 2*RGBAToGray(img.At(i+1, j)) + RGBAToGray(img.At(i+1, j+1))) - (RGBAToGray(img.At(i-1, j-1)) + 2*RGBAToGray(img.At(i-1, j)) + RGBAToGray(img.At(i-1, j+1)))
 	GY := (RGBAToGray(img.At(i-1, j-1)) + 2*RGBAToGray(img.At(i, j-1)) + RGBAToGray(img.At(i+1, j-1))) - (RGBAToGray(img.At(i-1, j+1)) + 2*RGBAToGray(img.At(i, j+1)) + RGBAToGray(img.At(i+1, j+1)))
 
-	return GX + GY
+	return GX, GY
 }
 
-// SumFourGray 八方向索贝尔算子
-func SumFourGray(img image.Image, i, j int) uint16 {
+// SumEightGray 八方向索贝尔算子
+func SumEightGray(img image.Image, i, j int) uint16 {
 
 	G1 := (RGBAToGray(img.At(i-2, j+1)) + 2*RGBAToGray(img.At(i-1, j+1)) + 4*RGBAToGray(img.At(i, j+1)) + 2*RGBAToGray(img.At(i+1, j+1)) + RGBAToGray(img.At(i+2, j+1))) - (RGBAToGray(img.At(i-2, j-1)) + 2*RGBAToGray(img.At(i-1, j-1)) + 4*RGBAToGray(img.At(i, j-1)) + 2*RGBAToGray(img.At(i+1, j-1)) + RGBAToGray(img.At(i+2, j-1)))
 
@@ -132,8 +131,8 @@ func SumFourGray(img image.Image, i, j int) uint16 {
 	return G1 + G2 + G3 + G4 + G5 + G6 + G7 + G8
 }
 
-// SumEightGray 四方向索贝尔算子
-func SumEightGray(img image.Image, i, j int) uint16 {
+// SumFourGray 四方向索贝尔算子
+func SumFourGray(img image.Image, i, j int) uint16 {
 
 	GX := (RGBAToGray(img.At(i-2, j+1)) + 2*RGBAToGray(img.At(i-1, j+1)) + 4*RGBAToGray(img.At(i, j+1)) + 2*RGBAToGray(img.At(i+1, j+1)) + RGBAToGray(img.At(i+2, j+1))) - (RGBAToGray(img.At(i-2, j-1)) + 2*RGBAToGray(img.At(i-1, j-1)) + 4*RGBAToGray(img.At(i, j-1)) + 2*RGBAToGray(img.At(i+1, j-1)) + RGBAToGray(img.At(i+2, j-1)))
 
