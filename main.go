@@ -6,11 +6,12 @@ import (
 	"image/color"
 	"image/draw"
 	"image/jpeg"
+	"math"
 	"os"
 )
 
 func main() {
-	file, err := os.Open("cat.jpg")
+	file, err := os.Open("j.jpg")
 
 	if err != nil {
 		fmt.Println(err)
@@ -35,16 +36,22 @@ func main() {
 		for j := 0; j < yHeight; j++ {
 
 			// 四方向索贝尔算子
-			// GX := SumGray(RGBAToGray(img.At(i+1, j-1)), RGBAToGray(img.At(i+1, j)), RGBAToGray(img.At(i+1, j+1)), RGBAToGray(img.At(i-1, j-1)), RGBAToGray(img.At(i-1, j)), RGBAToGray(img.At(i-1, j+1)))
-			// GY := SumGray(RGBAToGray(img.At(i-1, j-1)), RGBAToGray(img.At(i, j-1)), RGBAToGray(img.At(i+1, j-1)), RGBAToGray(img.At(i-1, j+1)), RGBAToGray(img.At(i, j+1)), RGBAToGray(img.At(i+1, j+1)))
-			// G := GX + GY
+			// GYX, GXY := SumGray(img, i, j)
+			// fmt.Println(GYX, GXY)
+			// fmt.Println(G - RGBAToGray(img.At(i, j)))
+
+			// 四方向索贝尔算子
+			// G := SumFourGray(img, i, j)
+
+			// 四方向索贝尔算子
+			G := SumGrayNo(img, i, j)
 
 			// 八方向索贝尔算子
-			G := SumEightGray(img, i, j)
+			// G := SumEightGray(img, i, j)
 			if G > 63000 {
-				fmt.Println("(", i, ",", j, ")")
+				fmt.Println("(", i, ",", j, ")", G)
 				var m color.Gray16
-				m.Y = G
+				m.Y = RGBAToGray(img.At(i, j))
 				jpg.SetGray16(i, j, m)
 			}
 			// fmt.Println(G)
@@ -53,10 +60,6 @@ func main() {
 			// jpg.SetGray16(i, j, m)
 		}
 	}
-
-	// gg := jpg.Pix[7]
-
-	// fmt.Println(gg)
 
 	draw.Draw(jpg, img.Bounds().Add(image.Pt(xWidth, yHeight)), img, img.Bounds().Min, draw.Src)
 	jpeg.Encode(file1, jpg, nil)
@@ -70,12 +73,36 @@ func RGBAToGray(color color.Color) uint16 {
 }
 
 // SumGray sum tag Gx 四方向索贝尔算子
-func SumGray(a, b, c, d, e, f uint16) uint16 {
-	return (a + 2*b + c) - (d + 2*e + f)
+func SumGray(img image.Image, i, j int) (float64, float64) {
+
+	var atyx, atxy float64
+
+	GX := (RGBAToGray(img.At(i+1, j-1)) + 2*RGBAToGray(img.At(i+1, j)) + RGBAToGray(img.At(i+1, j+1))) - (RGBAToGray(img.At(i-1, j-1)) + 2*RGBAToGray(img.At(i-1, j)) + RGBAToGray(img.At(i-1, j+1)))
+	GY := (RGBAToGray(img.At(i-1, j-1)) + 2*RGBAToGray(img.At(i, j-1)) + RGBAToGray(img.At(i+1, j-1))) - (RGBAToGray(img.At(i-1, j+1)) + 2*RGBAToGray(img.At(i, j+1)) + RGBAToGray(img.At(i+1, j+1)))
+	if (GY > 0) && (GX > 0) {
+		atyx = math.Atan(float64(GY / GX))
+		atxy = math.Atan(float64(GX / GY))
+	} else if GX <= 0 && GY > 0 {
+		atxy = math.Atan(float64(GX / GY))
+		atyx = math.Pi / 2
+	} else if GY <= 0 && GX > 0 {
+		atxy = math.Pi / 2
+		atyx = math.Atan(float64(GY / GX))
+	}
+	return atyx, atxy
 }
 
-// SumEightGray 八方向索贝尔算子
-func SumEightGray(img image.Image, i, j int) uint16 {
+// SumGrayNo sum tag Gx 四方向索贝尔算子
+func SumGrayNo(img image.Image, i, j int) uint16 {
+
+	GX := (RGBAToGray(img.At(i+1, j-1)) + 2*RGBAToGray(img.At(i+1, j)) + RGBAToGray(img.At(i+1, j+1))) - (RGBAToGray(img.At(i-1, j-1)) + 2*RGBAToGray(img.At(i-1, j)) + RGBAToGray(img.At(i-1, j+1)))
+	GY := (RGBAToGray(img.At(i-1, j-1)) + 2*RGBAToGray(img.At(i, j-1)) + RGBAToGray(img.At(i+1, j-1))) - (RGBAToGray(img.At(i-1, j+1)) + 2*RGBAToGray(img.At(i, j+1)) + RGBAToGray(img.At(i+1, j+1)))
+
+	return GX + GY
+}
+
+// SumFourGray 八方向索贝尔算子
+func SumFourGray(img image.Image, i, j int) uint16 {
 
 	G1 := (RGBAToGray(img.At(i-2, j+1)) + 2*RGBAToGray(img.At(i-1, j+1)) + 4*RGBAToGray(img.At(i, j+1)) + 2*RGBAToGray(img.At(i+1, j+1)) + RGBAToGray(img.At(i+2, j+1))) - (RGBAToGray(img.At(i-2, j-1)) + 2*RGBAToGray(img.At(i-1, j-1)) + 4*RGBAToGray(img.At(i, j-1)) + 2*RGBAToGray(img.At(i+1, j-1)) + RGBAToGray(img.At(i+2, j-1)))
 
@@ -94,6 +121,16 @@ func SumEightGray(img image.Image, i, j int) uint16 {
 	G8 := (2*RGBAToGray(img.At(i-1, j+1)) + 2*RGBAToGray(img.At(i+1, j+1)) + 4*RGBAToGray(img.At(i+1, j)) + RGBAToGray(img.At(i+2, j)) + 4*RGBAToGray(img.At(i, j+1))) - (2*RGBAToGray(img.At(i+1, j-1)) + 2*RGBAToGray(img.At(i-1, j-1)) + 4*RGBAToGray(img.At(i-1, j)) + RGBAToGray(img.At(i-2, j)) + 4*RGBAToGray(img.At(i, j-1)))
 
 	return G1 + G2 + G3 + G4 + G5 + G6 + G7 + G8
+}
+
+// SumEightGray 四方向索贝尔算子
+func SumEightGray(img image.Image, i, j int) uint16 {
+
+	GX := (RGBAToGray(img.At(i-2, j+1)) + 2*RGBAToGray(img.At(i-1, j+1)) + 4*RGBAToGray(img.At(i, j+1)) + 2*RGBAToGray(img.At(i+1, j+1)) + RGBAToGray(img.At(i+2, j+1))) - (RGBAToGray(img.At(i-2, j-1)) + 2*RGBAToGray(img.At(i-1, j-1)) + 4*RGBAToGray(img.At(i, j-1)) + 2*RGBAToGray(img.At(i+1, j-1)) + RGBAToGray(img.At(i+2, j-1)))
+
+	GY := (RGBAToGray(img.At(i+1, j-2)) + 2*RGBAToGray(img.At(i+1, j-1)) + 4*RGBAToGray(img.At(i+1, j)) + 2*RGBAToGray(img.At(i+1, j+1)) + RGBAToGray(img.At(i+1, j+2))) - (RGBAToGray(img.At(i-1, j-2)) + 2*RGBAToGray(img.At(i-1, j-1)) + 4*RGBAToGray(img.At(i-1, j)) + 2*RGBAToGray(img.At(i-1, j+1)) + RGBAToGray(img.At(i-1, j+2)))
+
+	return GX + GY
 }
 
 // Gx = [  f(x+1,y-1) + 2*f(x+1,y) + f(x+1,y+1)  ]  -  [  f(x-1,y-1) + 2*f(x-1,y) + f(x-1,y+1)  ]
