@@ -1,4 +1,4 @@
-package SobelEdge
+package main
 
 import (
 	"fmt"
@@ -8,7 +8,15 @@ import (
 	"image/jpeg"
 	"math"
 	"os"
+
+	"github.com/jeasonstudio/GaussianBlur"
 )
+
+func main() {
+
+	GaussianBlur.GaussianBlur("f.jpg", "zct.jpg", 5, 500)
+	SobelEdge("zct.jpg", "zct2.jpg", 60000)
+}
 
 // SobelEdge 索贝尔算子处理图片边缘
 func SobelEdge(sourceImg, tagImg string, YUDATA uint16) {
@@ -42,17 +50,17 @@ func SobelEdge(sourceImg, tagImg string, YUDATA uint16) {
 			// fmt.Println(G - RGBAToGray(img.At(i, j)))
 
 			// 四方向索贝尔算子
-			// G := SumFourGray(img, i, j)
+			G := SumFourGray(img, i, j)
 
 			// 四方向索贝尔算子
-			G := SumGrayNo(img, i, j)
+			// G := SumGrayNo(img, i, j)
 
 			// 八方向索贝尔算子
 			// G := SumEightGray(img, i, j)
 			if G > YUDATA {
-				fmt.Println("(", i, ",", j, ")", G)
+				// fmt.Println("(", i, ",", j, ")", G)
 				var m color.Gray16
-				m.Y = 65535
+				m.Y = G
 				jpg.SetGray16(i, j, m)
 			}
 			// fmt.Println(G)
