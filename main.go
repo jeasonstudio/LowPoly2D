@@ -11,7 +11,7 @@ import (
 )
 
 func main() {
-	file, err := os.Open("j.jpg")
+	file, err := os.Open("f.jpg")
 
 	if err != nil {
 		fmt.Println(err)
@@ -48,10 +48,10 @@ func main() {
 
 			// 八方向索贝尔算子
 			// G := SumEightGray(img, i, j)
-			if G > 63000 {
+			if G > 6000 {
 				fmt.Println("(", i, ",", j, ")", G)
 				var m color.Gray16
-				m.Y = RGBAToGray(img.At(i, j))
+				m.Y = 65535
 				jpg.SetGray16(i, j, m)
 			}
 			// fmt.Println(G)
