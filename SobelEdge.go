@@ -14,7 +14,7 @@ import (
 
 func main() {
 
-	GaussianBlur.GaussianBlur("t.jpg", "zct.jpg", 5, 5000)
+	GaussianBlur.GaussianBlur("j.jpg", "zct.jpg", 5, 5000)
 	SobelEdge("zct.jpg", "tag.jpg", 10)
 }
 
