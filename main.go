@@ -46,7 +46,7 @@ func bbb() {
 
 }
 
-func main() {
+func ccc() {
 	file, err := os.Open("cat.jpg")
 
 	if err != nil {

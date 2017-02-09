@@ -7,19 +7,24 @@ import (
 	"image/draw"
 	"image/jpeg"
 	"math"
+	"math/rand"
 	"os"
+	"time"
 
 	"github.com/jeasonstudio/GaussianBlur"
 )
 
-func DDD() {
+// Putpixel 划线函数
+type Putpixel func(x, y int)
 
-	GaussianBlur.GaussianBlur("f.jpg", "zct.jpg", 5, 5000)
-	SobelEdge("zct.jpg", "tag.jpg", 10)
+func main() {
+
+	GaussianBlur.GaussianBlur("hb.jpg", "zct.jpg", 5, 5000)
+	SobelEdge("zct.jpg", "tag.jpg", 5000, 10000, 30, 2)
 }
 
 // SobelEdge 索贝尔算子处理图片边缘
-func SobelEdge(sourceImg, tagImg string, YUDATA uint16) {
+func SobelEdge(sourceImg, tagImg string, lowSigema, highSigema uint16, p, q int) {
 	file, err := os.Open(sourceImg)
 
 	if err != nil {
@@ -40,6 +45,8 @@ func SobelEdge(sourceImg, tagImg string, YUDATA uint16) {
 	yHeight := img.Bounds().Dy()
 
 	jpg := image.NewGray16(img.Bounds())
+	// oldX := 0
+	// oldY := 0
 
 	for i := 1; i < xWidth-1; i++ {
 		for j := 1; j < yHeight-1; j++ {
@@ -51,9 +58,6 @@ func SobelEdge(sourceImg, tagImg string, YUDATA uint16) {
 
 			// 四方向索贝尔算子
 			// G := SumFourGray(img, i, j)
-
-			// 四方向索贝尔算子
-			GX, GY := SumGrayNo(img, i, j)
 
 			// 八方向索贝尔算子
 			// G := SumEightGray(img, i, j)
@@ -72,21 +76,31 @@ func SobelEdge(sourceImg, tagImg string, YUDATA uint16) {
 			// if GX+GY <= 1000 {
 			// }
 
+			// 四方向索贝尔算子
+			GX, GY := SumGrayNo(img, i, j)
 			var m color.Gray16
-			if GX+GY > 3000 && GX+GY < 50000 {
+			o := rand.New(rand.NewSource(time.Now().UnixNano())).Intn(10000)
+
+			// fmt.Println(o)
+			if GX+GY > lowSigema && GX+GY < highSigema && o <= p {
 				// fmt.Println("(", i, ",", j, ")", G)
+				m.Y = 65535
+				jpg.SetGray16(i, j, m)
+				// drawline(oldX, oldY, i, j, func(x, y int) {
+				// 	jpg.Set(x, y, color.RGBA64{65535, 65535, 65535, 65535})
+				// })
+				// oldX = i
+				// oldY = j
+			} else if o <= q {
 				m.Y = 50000
 				jpg.SetGray16(i, j, m)
-			} else {
-				m.Y = RGBAToGray(img.At(i, j))
-				jpg.SetGray16(i, j, m)
 			}
-			// fmt.Println(G)
-			// var m color.Gray16
-			// m.Y = G
-			// jpg.SetGray16(i, j, m)
 		}
 	}
+
+	// drawline(5, 5, xWidth-8, yHeight-10, func(x, y int) {
+	// 	jpg.Set(x, y, color.RGBA64{65535, 65535, 65535, 65535})
+	// })
 
 	draw.Draw(jpg, img.Bounds().Add(image.Pt(xWidth, yHeight)), img, img.Bounds().Min, draw.Src)
 	jpeg.Encode(file1, jpg, nil)
@@ -169,3 +183,38 @@ func LaplaceGray(img image.Image, i, j int) uint16 {
 // Gy = [  f(x-1,y-1) + 2*f(x,y-1) + f(x+1,y-1)  ]  -  [  f(x-1,y+1) + 2*f(x,y+1) + f(x+1,y+1)  ]
 // laplace ={ f(x+1,y)+f(x-1,y)+2f(x,y) } +  { f(x,y-1) + f(x, y+1) - 2f(x, y)}= \\\\\f(x-1,y) + f(x+1,y) + f(x,y-1) + f(x, y+1) - 4f(x, y);
 // 224676
+
+func abs(x int) int {
+	if x >= 0 {
+		return x
+	}
+	return -x
+}
+
+func drawline(x0, y0, x1, y1 int, brush Putpixel) {
+	dx := abs(x1 - x0)
+	dy := abs(y1 - y0)
+	sx, sy := 1, 1
+	if x0 >= x1 {
+		sx = -1
+	}
+	if y0 >= y1 {
+		sy = -1
+	}
+	err := dx - dy
+	for {
+		brush(x0, y0)
+		if x0 == x1 && y0 == y1 {
+			return
+		}
+		e2 := err * 2
+		if e2 > -dy {
+			err -= dy
+			x0 += sx
+		}
+		if e2 < dx {
+			err += dx
+			y0 += sy
+		}
+	}
+}
