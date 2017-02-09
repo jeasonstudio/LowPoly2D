@@ -1,4 +1,4 @@
-package mian
+package main
 
 import (
 	"fmt"
@@ -8,12 +8,14 @@ import (
 	"image/jpeg"
 	"math"
 	"os"
+
+	"github.com/jeasonstudio/GaussianBlur"
 )
 
-func SE() {
+func main() {
 
-	// GaussianBlur.GaussianBlur("t.jpg", "zct.jpg", 5, 500)
-	SobelEdge("cat.jpg", "tag.jpg", 10)
+	GaussianBlur.GaussianBlur("t.jpg", "zct.jpg", 5, 5000)
+	SobelEdge("zct.jpg", "tag.jpg", 10)
 }
 
 // SobelEdge 索贝尔算子处理图片边缘
@@ -51,7 +53,7 @@ func SobelEdge(sourceImg, tagImg string, YUDATA uint16) {
 			// G := SumFourGray(img, i, j)
 
 			// 四方向索贝尔算子
-			// GX, GY := SumGrayNo(img, i, j)
+			GX, GY := SumGrayNo(img, i, j)
 
 			// 八方向索贝尔算子
 			// G := SumEightGray(img, i, j)
@@ -64,21 +66,22 @@ func SobelEdge(sourceImg, tagImg string, YUDATA uint16) {
 			// }
 
 			// 拉布拉斯算子
-			G := LaplaceGray(img, i, j)
+			// G := LaplaceGray(img, i, j)
 			// fmt.Println(G, YUDATA)
-			if G <= 1000 {
-				fmt.Println(G)
-			}
+			// fmt.Println(GX, GY)
+			// if GX+GY <= 1000 {
+			// }
 
 			var m color.Gray16
-			if G > 60000 {
+			if GX+GY > 2000 && GX+GY < 45000 {
 				// fmt.Println("(", i, ",", j, ")", G)
-				m.Y = G
-				jpg.SetGray16(i, j, m)
-			} else {
-				m.Y = RGBAToGray(img.At(i, j))
+				m.Y = 50000
 				jpg.SetGray16(i, j, m)
 			}
+			// else {
+			// 	m.Y = RGBAToGray(img.At(i, j))
+			// 	jpg.SetGray16(i, j, m)
+			// }
 			// fmt.Println(G)
 			// var m color.Gray16
 			// m.Y = G

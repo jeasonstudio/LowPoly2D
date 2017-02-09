@@ -8,8 +8,8 @@ import (
 	"os"
 )
 
-func main() {
-	ddd := 10
+func bbb() {
+	// ddd := 10
 
 	file, err := os.Open("cat.jpg")
 
@@ -30,15 +30,13 @@ func main() {
 	yHeight := img.Bounds().Dy()
 
 	jpg := image.NewRGBA64(img.Bounds())
-	
-	
 
-	for (i := 1,p := 1); (i / ddd) <= (xWidth / ddd); (i++,p=i) {
-		for (j := 1,q := 1); (j / ddd) < (yHeight / ddd); (j++,q=j) {
-			thisR, thisG, thisB, thisA := img.At(i, j).RGBA()
-			jpg.SetRGBA64(i, j)
-		}
-	}
+	// for (i := 1,p := 1); (i / ddd) <= (xWidth / ddd); (i++,p=i) {
+	// 	for (j := 1,q := 1); (j / ddd) < (yHeight / ddd); (j++,q=j) {
+	// 		thisR, thisG, thisB, thisA := img.At(i, j).RGBA()
+	// 		jpg.SetRGBA64(i, j)
+	// 	}
+	// }
 
 	draw.Draw(jpg, img.Bounds().Add(image.Pt(xWidth, yHeight)), img, img.Bounds().Min, draw.Src)
 	jpeg.Encode(file1, jpg, nil)

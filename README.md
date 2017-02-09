@@ -10,3 +10,4 @@ LowPoly2D for Golang go 语言2d低面设计算法实现
 
 ![](f.jpg)
 ![](fS8.jpg)
+![](fS35.jpg)
