@@ -12,9 +12,9 @@ import (
 	"github.com/jeasonstudio/GaussianBlur"
 )
 
-func main() {
+func DDD() {
 
-	GaussianBlur.GaussianBlur("j.jpg", "zct.jpg", 5, 5000)
+	GaussianBlur.GaussianBlur("f.jpg", "zct.jpg", 5, 5000)
 	SobelEdge("zct.jpg", "tag.jpg", 10)
 }
 
@@ -73,15 +73,14 @@ func SobelEdge(sourceImg, tagImg string, YUDATA uint16) {
 			// }
 
 			var m color.Gray16
-			if GX+GY > 2000 && GX+GY < 45000 {
+			if GX+GY > 3000 && GX+GY < 50000 {
 				// fmt.Println("(", i, ",", j, ")", G)
 				m.Y = 50000
 				jpg.SetGray16(i, j, m)
+			} else {
+				m.Y = RGBAToGray(img.At(i, j))
+				jpg.SetGray16(i, j, m)
 			}
-			// else {
-			// 	m.Y = RGBAToGray(img.At(i, j))
-			// 	jpg.SetGray16(i, j, m)
-			// }
 			// fmt.Println(G)
 			// var m color.Gray16
 			// m.Y = G
