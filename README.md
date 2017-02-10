@@ -3,6 +3,8 @@ LowPoly2D for Golang go 语言2d低面设计算法实现
 
 暂时为 Sobel 边缘检测：
 
+### Results
+
 sourceImg | tagImg 
 ---|---
 ![alt](images/s1.jpg) | ![alt](images/t1.jpg)
@@ -21,7 +23,7 @@ $ go get github.com/jeasonstudio/LowPoly2D
 // soursourceImg, tagImg 为原图像、目标图像的相对地址
 // lowSigema,highSigema 两个阈值，低阈值和高阈值，可调整 范围 0~65535
 // p,q nil，暂时无用
-func SobelEdge(sourceImg, tagImg string, lowSigema, highSigema uint16, p, q int) {
+func SobelEdge(sourceImg, tagImg string, lowSigema, highSigema uint16, p, q int)
 ```
 
 ```go
