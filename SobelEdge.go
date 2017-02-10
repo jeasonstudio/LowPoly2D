@@ -1,17 +1,14 @@
 package main
 
 import (
+	"GaussianBlur"
 	"fmt"
 	"image"
 	"image/color"
 	"image/draw"
 	"image/jpeg"
 	"math"
-	"math/rand"
 	"os"
-	"time"
-
-	"github.com/jeasonstudio/GaussianBlur"
 )
 
 // Putpixel 划线函数
@@ -19,8 +16,8 @@ type Putpixel func(x, y int)
 
 func main() {
 
-	GaussianBlur.GaussianBlur("hb.jpg", "zct.jpg", 5, 5000)
-	SobelEdge("zct.jpg", "tag.jpg", 5000, 10000, 30, 2)
+	GaussianBlur.GBlurInit("hb.jpg", "zct.jpg", 5, 20)
+	SobelEdge("zct.jpg", "tag.jpg", 3000, 50000, 30, 2)
 }
 
 // SobelEdge 索贝尔算子处理图片边缘
@@ -60,14 +57,14 @@ func SobelEdge(sourceImg, tagImg string, lowSigema, highSigema uint16, p, q int)
 			// G := SumFourGray(img, i, j)
 
 			// 八方向索贝尔算子
-			// G := SumEightGray(img, i, j)
+			G := SumEightGray(img, i, j)
 			// fmt.Println(GX + GY - RGBAToGray(img.At(i, j)))
-			// if (GX+GY)-RGBAToGray(img.At(i, j)) > YUDATA {
-			// 	// fmt.Println("(", i, ",", j, ")", G)
-			// 	var m color.Gray16
-			// 	m.Y = RGBAToGray(img.At(i, j))
-			// 	jpg.SetGray16(i, j, m)
-			// }
+			if G > lowSigema && G < highSigema {
+				// fmt.Println("(", i, ",", j, ")", G)
+				var m color.Gray16
+				m.Y = 50000
+				jpg.SetGray16(i, j, m)
+			}
 
 			// 拉布拉斯算子
 			// G := LaplaceGray(img, i, j)
@@ -77,24 +74,24 @@ func SobelEdge(sourceImg, tagImg string, lowSigema, highSigema uint16, p, q int)
 			// }
 
 			// 四方向索贝尔算子
-			GX, GY := SumGrayNo(img, i, j)
-			var m color.Gray16
-			o := rand.New(rand.NewSource(time.Now().UnixNano())).Intn(10000)
+			// GX, GY := SumGrayNo(img, i, j)
+			// var m color.Gray16
+			// o := rand.New(rand.NewSource(time.Now().UnixNano())).Intn(10000)
 
-			// fmt.Println(o)
-			if GX+GY > lowSigema && GX+GY < highSigema && o <= p {
-				// fmt.Println("(", i, ",", j, ")", G)
-				m.Y = 65535
-				jpg.SetGray16(i, j, m)
-				// drawline(oldX, oldY, i, j, func(x, y int) {
-				// 	jpg.Set(x, y, color.RGBA64{65535, 65535, 65535, 65535})
-				// })
-				// oldX = i
-				// oldY = j
-			} else if o <= q {
-				m.Y = 50000
-				jpg.SetGray16(i, j, m)
-			}
+			// // fmt.Println(o)
+			// if GX+GY > lowSigema && GX+GY < highSigema && o <= p {
+			// 	// fmt.Println("(", i, ",", j, ")", G)
+			// 	m.Y = 65535
+			// 	jpg.SetGray16(i, j, m)
+			// 	// drawline(oldX, oldY, i, j, func(x, y int) {
+			// 	// 	jpg.Set(x, y, color.RGBA64{65535, 65535, 65535, 65535})
+			// 	// })
+			// 	// oldX = i
+			// 	// oldY = j
+			// } else if o <= q {
+			// 	m.Y = 50000
+			// 	jpg.SetGray16(i, j, m)
+			// }
 		}
 	}
 
