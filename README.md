@@ -21,7 +21,6 @@ $ go get github.com/jeasonstudio/LowPoly2D
 // soursourceImg, tagImg 为原图像、目标图像的相对地址
 // lowSigema,highSigema 两个阈值，低阈值和高阈值，可调整 范围 0~65535
 // p,q nil，暂时无用
-
 func SobelEdge(sourceImg, tagImg string, lowSigema, highSigema uint16, p, q int) {
 ```
 
