@@ -5,7 +5,7 @@ LowPoly2D for Golang go 语言2d低面设计算法实现
 
 ### Results
 
-sourceImg | tagImg 
+sourceImg | tagImg  
 ---|---
 ![alt](images/s1.jpg) | ![alt](images/t1.jpg)
 ![alt](images/s2.jpg) | ![alt](images/t2.jpg)
